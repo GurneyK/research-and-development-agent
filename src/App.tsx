@@ -6,6 +6,7 @@ import {
   Bell,
   BookOpen,
   BriefcaseBusiness,
+  CalendarDays,
   CheckCircle2,
   ChevronDown,
   CircleX,
@@ -37,6 +38,7 @@ import {
 import './App.css'
 
 type View = 'submissions' | 'insights' | 'scoring' | 'users' | 'settings'
+type InsightTab = 'Overview' | 'Geographies' | 'Business Groups' | 'Product Stages' | 'Lifecycle'
 type SubmissionStatus =
   | 'In Admin Review'
   | 'On Hold'
@@ -381,8 +383,8 @@ function App() {
   const [search, setSearch] = useState('')
   const [timeRange, setTimeRange] = useState('All Time')
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null)
-  const [showFilters, setShowFilters] = useState(false)
   const [showManual, setShowManual] = useState(false)
+  const [showCreateUser, setShowCreateUser] = useState(false)
   const [compactNav, setCompactNav] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
 
@@ -399,7 +401,7 @@ function App() {
     )
   }, [openSubmissions, search])
 
-  const title = {
+  const title = showManual ? 'New manual submission' : {
     submissions: 'Submissions',
     insights: 'Insights',
     scoring: 'Scoring Guide',
@@ -485,28 +487,27 @@ function App() {
         </header>
 
         <section className="content-surface">
-          {activeView === 'submissions' && (
+          {!showManual && activeView === 'submissions' && (
             <SubmissionsView
               closedSubmissions={closedSubmissions}
               filteredSubmissions={filteredSubmissions}
               search={search}
               setSearch={setSearch}
               setSelectedSubmission={setSelectedSubmission}
-              setShowFilters={setShowFilters}
               setShowManual={setShowManual}
               setTimeRange={setTimeRange}
               timeRange={timeRange}
             />
           )}
-          {activeView === 'insights' && <InsightsView timeRange={timeRange} setTimeRange={setTimeRange} />}
-          {activeView === 'scoring' && <ScoringGuideView />}
-          {activeView === 'users' && <UsersView setShowManual={setShowManual} />}
-          {activeView === 'settings' && <SettingsView />}
+          {showManual && <ManualSubmissionPage onClose={() => setShowManual(false)} />}
+          {!showManual && activeView === 'insights' && <InsightsView timeRange={timeRange} setTimeRange={setTimeRange} />}
+          {!showManual && activeView === 'scoring' && <ScoringGuideView />}
+          {!showManual && activeView === 'users' && <UsersView setShowCreateUser={setShowCreateUser} />}
+          {!showManual && activeView === 'settings' && <SettingsView />}
         </section>
       </main>
 
-      {showFilters && <FiltersPanel onClose={() => setShowFilters(false)} />}
-      {showManual && <ManualSubmissionModal onClose={() => setShowManual(false)} />}
+      {showCreateUser && <CreateUserModal onClose={() => setShowCreateUser(false)} />}
       {selectedSubmission && (
         <SubmissionDrawer submission={selectedSubmission} onClose={() => setSelectedSubmission(null)} />
       )}
@@ -520,7 +521,6 @@ type SubmissionsViewProps = {
   search: string
   setSearch: (value: string) => void
   setSelectedSubmission: (submission: Submission) => void
-  setShowFilters: (value: boolean) => void
   setShowManual: (value: boolean) => void
   setTimeRange: (value: string) => void
   timeRange: string
@@ -532,11 +532,12 @@ function SubmissionsView({
   search,
   setSearch,
   setSelectedSubmission,
-  setShowFilters,
   setShowManual,
   setTimeRange,
   timeRange,
 }: SubmissionsViewProps) {
+  const [popover, setPopover] = useState<'help' | 'sort' | 'filters' | 'calendar' | null>(null)
+
   return (
     <div className="view-stack">
       <div className="view-heading split">
@@ -544,9 +545,15 @@ function SubmissionsView({
           <strong>10</strong> total submissions
         </p>
         <div className="header-buttons">
-          <button className="icon-button" type="button" aria-label="Help">
+          <button
+            className="icon-button"
+            type="button"
+            aria-label="Help"
+            onClick={() => setPopover((current) => (current === 'help' ? null : 'help'))}
+          >
             <HelpCircle size={18} />
           </button>
+          {popover === 'help' && <HelpPopover onClose={() => setPopover(null)} />}
           <button className="primary-button" type="button" onClick={() => setShowManual(true)}>
             <Plus size={18} />
             New Manual Submission
@@ -559,7 +566,9 @@ function SubmissionsView({
           value={timeRange}
           options={['7 Days', '30 Days', '90 Days', 'All Time', 'Custom']}
           onChange={setTimeRange}
+          onCustomClick={() => setPopover((current) => (current === 'calendar' ? null : 'calendar'))}
         />
+        {popover === 'calendar' && <CalendarPopover onClose={() => setPopover(null)} setTimeRange={setTimeRange} />}
         <label className="search-field">
           <Search size={17} />
           <input
@@ -568,14 +577,29 @@ function SubmissionsView({
             placeholder="Search by name or company..."
           />
         </label>
-        <button className="soft-button" type="button">
-          <ArrowUpDown size={16} />
-          Sort: Date
-        </button>
-        <button className="soft-button" type="button" onClick={() => setShowFilters(true)}>
-          <SlidersHorizontal size={16} />
-          Filters
-        </button>
+        <div className="toolbar-popover-anchor">
+          <button
+            className="soft-button"
+            type="button"
+            aria-label="Sort submissions"
+            onClick={() => setPopover((current) => (current === 'sort' ? null : 'sort'))}
+          >
+            <ArrowUpDown size={16} />
+            Sort: Date
+          </button>
+          {popover === 'sort' && <SortPopover onClose={() => setPopover(null)} />}
+        </div>
+        <div className="toolbar-popover-anchor">
+          <button
+            className="soft-button"
+            type="button"
+            onClick={() => setPopover((current) => (current === 'filters' ? null : 'filters'))}
+          >
+            <SlidersHorizontal size={16} />
+            Filters
+          </button>
+          {popover === 'filters' && <FiltersPopover onClose={() => setPopover(null)} />}
+        </div>
       </div>
 
       <SectionLabel label="Open" count={filteredSubmissions.length} />
@@ -683,28 +707,62 @@ function InsightsView({
   setTimeRange: (value: string) => void
   timeRange: string
 }) {
+  const [activeTab, setActiveTab] = useState<InsightTab>('Overview')
+  const [showCalendar, setShowCalendar] = useState(false)
+  const tabs: [InsightTab, typeof BarChart3][] = [
+    ['Overview', BarChart3],
+    ['Geographies', Globe2],
+    ['Business Groups', BriefcaseBusiness],
+    ['Product Stages', Layers3],
+    ['Lifecycle', Activity],
+  ]
+
   return (
     <div className="view-stack">
       <SegmentedControl
         value={timeRange}
         options={['7 Days', '30 Days', '90 Days', 'All Time', 'Custom']}
         onChange={setTimeRange}
+        onCustomClick={() => setShowCalendar((current) => !current)}
       />
+      {showCalendar && <CalendarPopover onClose={() => setShowCalendar(false)} setTimeRange={setTimeRange} />}
       <div className="data-tabs">
-        {[
-          ['Overview', BarChart3],
-          ['Geographies', Globe2],
-          ['Business Groups', BriefcaseBusiness],
-          ['Product Stages', Layers3],
-          ['Lifecycle', Activity],
-        ].map(([label, Icon]) => (
-          <button key={label as string} className={label === 'Overview' ? 'active' : ''} type="button">
+        {tabs.map(([label, Icon]) => (
+          <button
+            key={label}
+            className={activeTab === label ? 'active' : ''}
+            type="button"
+            onClick={() => setActiveTab(label)}
+          >
             <Icon size={15} />
-            {label as string}
+            {label}
           </button>
         ))}
       </div>
 
+      {activeTab === 'Overview' && <InsightsOverview />}
+      {activeTab === 'Geographies' && <InsightsBreakdown title="Geographies" subtitle="Submissions by headquarters region" items={[
+        ['Europe', '26', '43%', '#6467f2'],
+        ['North America', '18', '30%', '#3b82f6'],
+        ['Asia Pacific', '12', '20%', '#10b981'],
+        ['Middle East & Africa', '5', '8%', '#f59e0b'],
+      ]} />}
+      {activeTab === 'Business Groups' && <InsightsBreakdown title="Business Groups" subtitle="Where opportunities map into Unilever priorities" items={[
+        ['Home Care', '22', '36%', '#3b82f6'],
+        ['Foods', '16', '26%', '#10b981'],
+        ['Beauty & Wellbeing', '14', '23%', '#ec4899'],
+        ['Personal Care', '11', '18%', '#6467f2'],
+        ['Digital R&D', '8', '13%', '#22c7dc'],
+      ]} />}
+      {activeTab === 'Product Stages' && <StagePanel />}
+      {activeTab === 'Lifecycle' && <LifecyclePanel />}
+    </div>
+  )
+}
+
+function InsightsOverview() {
+  return (
+    <>
       <div className="kpi-grid">
         <KpiCard label="Total Submissions" value="61" delta="+12% vs prev" icon={ClipboardList} tone="violet" />
         <KpiCard label="Active Reviews" value="18" delta="+3 vs prev" icon={Eye} tone="blue" />
@@ -729,6 +787,102 @@ function InsightsView({
         </ChartPanel>
         <ChartPanel className="full" title="Recent Activity" subtitle="Latest decisions and status changes">
           <ActivityList />
+        </ChartPanel>
+      </div>
+    </>
+  )
+}
+
+function InsightsBreakdown({
+  items,
+  subtitle,
+  title,
+}: {
+  items: [string, string, string, string][]
+  subtitle: string
+  title: string
+}) {
+  return (
+    <div className="insight-tab-panel">
+      <div className="breakdown-grid">
+        <ChartPanel className="wide" title={title} subtitle={subtitle}>
+          <div className="ranked-bars">
+            {items.map(([label, value, percent, color]) => (
+              <div key={label}>
+                <p>
+                  <strong>{label}</strong>
+                  <span>
+                    {value} <small>{percent}</small>
+                  </span>
+                </p>
+                <em>
+                  <i style={{ width: percent, background: color }} />
+                </em>
+              </div>
+            ))}
+          </div>
+        </ChartPanel>
+        <ChartPanel title="Priority Mix" subtitle="Tier distribution within this slice">
+          <TierBars />
+        </ChartPanel>
+      </div>
+      <ChartPanel className="full" title="Notable movement" subtitle="Recent changes in this segment">
+        <ActivityList />
+      </ChartPanel>
+    </div>
+  )
+}
+
+function StagePanel() {
+  return (
+    <div className="insight-tab-panel">
+      <div className="stage-grid">
+        {[
+          ['Discovery', '14', 'Early signal capture and fit checks', '#6467f2'],
+          ['Pilot Ready', '21', 'Evidence package supports category review', '#3b82f6'],
+          ['Commercial', '17', 'Named customers or products in market', '#10b981'],
+          ['Scale-up', '9', 'Manufacturing or market expansion work', '#f59e0b'],
+        ].map(([title, value, copy, color]) => (
+          <article key={title} className="stage-card">
+            <i style={{ background: color }} />
+            <strong>{value}</strong>
+            <span>{title}</span>
+            <p>{copy}</p>
+          </article>
+        ))}
+      </div>
+      <ChartPanel title="Stage by Score Band" subtitle="Weighted opportunity maturity">
+        <BarChart />
+      </ChartPanel>
+    </div>
+  )
+}
+
+function LifecyclePanel() {
+  return (
+    <div className="insight-tab-panel">
+      <div className="lifecycle-flow">
+        {[
+          ['Form Filled', '61'],
+          ['Chat Completed', '54'],
+          ['Submitted', '47'],
+          ['AI Scoring', '34'],
+          ['Awaiting Decision', '18'],
+          ['Reviewed by Admin', '12'],
+        ].map(([label, value], index) => (
+          <article key={label}>
+            <span>{value}</span>
+            <strong>{label}</strong>
+            {index < 5 && <i />}
+          </article>
+        ))}
+      </div>
+      <div className="analytics-grid">
+        <ChartPanel title="Decision Mix" subtitle="0 decided in selected range">
+          <DonutChart />
+        </ChartPanel>
+        <ChartPanel title="Avg time-to-decision" subtitle="By tier">
+          <TierBars />
         </ChartPanel>
       </div>
     </div>
@@ -1002,7 +1156,7 @@ function ScoringGuideView() {
   )
 }
 
-function UsersView({ setShowManual }: { setShowManual: (value: boolean) => void }) {
+function UsersView({ setShowCreateUser }: { setShowCreateUser: (value: boolean) => void }) {
   return (
     <div className="view-stack">
       <div className="view-heading split">
@@ -1011,7 +1165,7 @@ function UsersView({ setShowManual }: { setShowManual: (value: boolean) => void 
           <button className="icon-button" type="button" aria-label="Help">
             <HelpCircle size={18} />
           </button>
-          <button className="primary-button" type="button" onClick={() => setShowManual(true)}>
+          <button className="primary-button" type="button" onClick={() => setShowCreateUser(true)}>
             <UserPlus size={18} />
             New user
           </button>
@@ -1130,10 +1284,12 @@ function SettingsView() {
 }
 
 function SegmentedControl({
+  onCustomClick,
   onChange,
   options,
   value,
 }: {
+  onCustomClick?: () => void
   onChange: (value: string) => void
   options: string[]
   value: string
@@ -1145,7 +1301,10 @@ function SegmentedControl({
           key={option}
           type="button"
           className={value === option ? 'active' : ''}
-          onClick={() => onChange(option)}
+          onClick={() => {
+            onChange(option)
+            if (option === 'Custom') onCustomClick?.()
+          }}
         >
           {option}
         </button>
@@ -1154,96 +1313,248 @@ function SegmentedControl({
   )
 }
 
-function FiltersPanel({ onClose }: { onClose: () => void }) {
+function HelpPopover({ onClose }: { onClose: () => void }) {
   return (
-    <div className="overlay" role="presentation" onMouseDown={onClose}>
-      <aside className="panel" role="dialog" aria-modal="true" aria-labelledby="filters-title" onMouseDown={(event) => event.stopPropagation()}>
-        <header>
-          <h2 id="filters-title">Filters</h2>
-          <button className="icon-button" type="button" onClick={onClose} aria-label="Close filters">
-            <X size={18} />
-          </button>
-        </header>
-        {[
-          ['Status', ['In Admin Review', 'AI Scoring', 'On Hold', 'Shortlisted']],
-          ['Business Group', ['Home Care', 'Personal Care', 'Foods', 'Beauty & Wellbeing', 'Digital R&D']],
-          ['Region', ['Europe', 'North America', 'Asia Pacific']],
-          ['Tier', ['Tier 1', 'Tier 2', 'Tier 3']],
-        ].map(([label, values]) => (
-          <fieldset key={label as string}>
-            <legend>{label as string}</legend>
-            {(values as string[]).map((value) => (
-              <label key={value} className="check-row">
-                <input type="checkbox" />
-                <span>{value}</span>
-              </label>
-            ))}
-          </fieldset>
-        ))}
-        <button className="primary-button full-width" type="button" onClick={onClose}>
-          Apply filters
+    <div className="floating-popover help-popover" role="dialog" aria-label="Submissions help">
+      <header>
+        <strong>Submissions</strong>
+        <button type="button" aria-label="Close help" onClick={onClose}>
+          <X size={15} />
         </button>
-      </aside>
+      </header>
+      <section>
+        <h3>Start with the open queue</h3>
+        <p>Review ready-for-triage and in-review submissions first. Closed outcomes stay collapsed so current work remains easy to scan.</p>
+      </section>
+      <section>
+        <h3>Use score as a signal</h3>
+        <p>The UFS score and tier help prioritize attention, but final decisions should use the full report, evidence, and reviewer notes.</p>
+      </section>
+      <section>
+        <h3>Manual submissions</h3>
+        <p>Use manual entry only for opportunities received outside the public portal so the pipeline and audit history stay complete.</p>
+      </section>
     </div>
   )
 }
 
-function ManualSubmissionModal({ onClose }: { onClose: () => void }) {
+function SortPopover({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="floating-popover compact-popover" role="menu" aria-label="Sort options">
+      {['Date submitted', 'Company Name', 'UFS Score', 'Tier priority'].map((option) => (
+        <button key={option} type="button" role="menuitem" onClick={onClose}>
+          {option}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function CalendarPopover({
+  onClose,
+  setTimeRange,
+}: {
+  onClose: () => void
+  setTimeRange: (value: string) => void
+}) {
+  const days = Array.from({ length: 31 }, (_, index) => index + 1)
+  return (
+    <div className="floating-popover calendar-popover" role="dialog" aria-label="Custom date range">
+      <header>
+        <strong>
+          <CalendarDays size={16} />
+          Custom range
+        </strong>
+        <button type="button" aria-label="Close calendar" onClick={onClose}>
+          <X size={15} />
+        </button>
+      </header>
+      <div className="calendar-meta">
+        <button type="button">Jun 2026</button>
+        <button type="button">Jul 2026</button>
+      </div>
+      <div className="calendar-grid" aria-label="July 2026 calendar">
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+          <span key={`${day}-${index}`}>{day}</span>
+        ))}
+        {days.map((day) => (
+          <button key={day} className={day >= 7 && day <= 13 ? 'selected' : ''} type="button">
+            {day}
+          </button>
+        ))}
+      </div>
+      <div className="calendar-fields">
+        <label>
+          Start
+          <input defaultValue="2026-07-07" />
+        </label>
+        <label>
+          End
+          <input defaultValue="2026-07-13" />
+        </label>
+      </div>
+      <footer>
+        <button className="soft-button" type="button" onClick={onClose}>
+          Cancel
+        </button>
+        <button
+          className="primary-button"
+          type="button"
+          onClick={() => {
+            setTimeRange('Custom')
+            onClose()
+          }}
+        >
+          Apply range
+        </button>
+      </footer>
+    </div>
+  )
+}
+
+function FiltersPopover({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="floating-popover filters-popover" role="dialog" aria-label="Filters">
+      <header>
+        <strong>Filters</strong>
+        <button type="button" aria-label="Close filters" onClick={onClose}>
+          <X size={15} />
+        </button>
+      </header>
+      {[
+        ['Status', ['Submitted', 'AI Scoring', 'Awaiting Decision', 'In Admin Review', 'On Hold', 'Shortlisted', 'Handed Off', 'Declined', 'Closed (DQ)']],
+        ['Tier', ['Tier 1', 'Tier 2', 'Tier 3', 'Tier 4', 'Tier 5']],
+        ['Region', ['Europe', 'North America', 'Asia Pacific', 'Middle East & Africa']],
+      ].map(([label, values]) => (
+        <fieldset key={label as string}>
+          <legend>{label as string}</legend>
+          {(values as string[]).map((value) => (
+            <label key={value} className="check-row">
+              <input type="checkbox" />
+              <span>{value}</span>
+            </label>
+          ))}
+        </fieldset>
+      ))}
+      <footer>
+        <button className="ghost-button" type="button" onClick={onClose}>
+          Clear All
+        </button>
+        <button className="primary-button" type="button" onClick={onClose}>
+          Apply
+        </button>
+      </footer>
+    </div>
+  )
+}
+
+function ManualSubmissionPage({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="manual-page view-stack">
+      <div className="view-heading split">
+        <div>
+          <h2>New manual submission</h2>
+          <p>Backfill a submission collected outside the public portal.</p>
+        </div>
+        <button className="soft-button" type="button" onClick={onClose}>
+          Back
+        </button>
+      </div>
+      <ManualSection title="Contact" fields={['Email *', 'Full name', 'Job title', 'Phone', 'LinkedIn']} />
+      <ManualSection
+        title="Company"
+        fields={[
+          'Company name',
+          'Website',
+          'Company LinkedIn',
+          'HQ region',
+          'HQ country',
+          'Years in operation',
+          'Team size',
+          'Corporate R&D experience',
+          'CPG partners',
+        ]}
+      />
+      <ManualSection
+        title="Product"
+        fields={['Product name', 'Stage', 'Industry sectors (comma separated)', 'Product link', 'Demo video URL', 'Operating countries']}
+      />
+      <section className="manual-section">
+        <h3>Pitch</h3>
+        {['Pitch / overview', 'Why Unilever', 'Competitive landscape', 'Regulatory awareness', 'Additional info'].map((label) => (
+          <label key={label} className="wide-field">
+            {label}
+            <textarea />
+          </label>
+        ))}
+      </section>
+      <footer className="manual-actions">
+        <button className="soft-button" type="button" onClick={onClose}>
+          Cancel
+        </button>
+        <button className="primary-button" type="button" onClick={onClose}>
+          Create draft
+        </button>
+      </footer>
+    </div>
+  )
+}
+
+function ManualSection({ fields, title }: { fields: string[]; title: string }) {
+  return (
+    <section className="manual-section">
+      <h3>{title}</h3>
+      <div className="manual-form-grid">
+        {fields.map((field) => (
+          <label key={field}>
+            {field}
+            <input />
+          </label>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function CreateUserModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="overlay" role="presentation" onMouseDown={onClose}>
-      <section className="modal-card" role="dialog" aria-modal="true" aria-labelledby="manual-title" onMouseDown={(event) => event.stopPropagation()}>
+      <section className="modal-card create-user-modal" role="dialog" aria-modal="true" aria-labelledby="create-user-title" onMouseDown={(event) => event.stopPropagation()}>
         <header>
           <div>
-            <h2 id="manual-title">New manual submission</h2>
-            <p>Create an intake record for reviewer triage.</p>
+            <h2 id="create-user-title">Create user</h2>
+            <p>A temporary password will be generated and shown to you exactly once. Share it through a secure channel.</p>
           </div>
-          <button className="icon-button" type="button" onClick={onClose} aria-label="Close modal">
+          <button className="icon-button" type="button" onClick={onClose} aria-label="Close create user">
             <X size={18} />
           </button>
         </header>
-        <div className="form-grid">
+        <div className="form-grid single-column">
           <label>
-            Company name
-            <input placeholder="Company Inc." />
+            Email
+            <input placeholder="someone@unilever.com" />
           </label>
           <label>
-            Solution name
-            <input placeholder="Technology or platform" />
+            Full name
+            <input placeholder="Jane Doe" />
           </label>
           <label>
-            Business group
-            <select defaultValue="">
-              <option value="" disabled>
-                Select group
-              </option>
-              <option>Home Care</option>
-              <option>Foods</option>
-              <option>Personal Care</option>
-              <option>Beauty & Wellbeing</option>
+            Role
+            <select defaultValue="Reviewer">
+              <option>Reviewer</option>
+              <option>Admin</option>
+              <option>Owner</option>
+              <option>Viewer</option>
             </select>
           </label>
-          <label>
-            Region
-            <select defaultValue="">
-              <option value="" disabled>
-                Select region
-              </option>
-              <option>Europe</option>
-              <option>North America</option>
-              <option>Asia Pacific</option>
-            </select>
-          </label>
-          <label className="wide-field">
-            Submission notes
-            <textarea placeholder="Paste intake notes, context, or diligence hints." />
-          </label>
+          <p>Read-only access to submissions, scores, and AI analysis.</p>
         </div>
         <footer>
           <button className="soft-button" type="button" onClick={onClose}>
             Cancel
           </button>
           <button className="primary-button" type="button" onClick={onClose}>
-            Create submission
+            Create user
           </button>
         </footer>
       </section>

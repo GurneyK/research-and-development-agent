@@ -29,6 +29,14 @@ test('core navigation views render', async ({ page }) => {
   await openNav(page, 'Insights')
   await expect(page.getByRole('heading', { name: 'Insights' })).toBeVisible()
   await expect(page.getByText('Submission Trend')).toBeVisible()
+  await page.getByRole('button', { name: 'Geographies' }).click()
+  await expect(page.getByText('Submissions by headquarters region')).toBeVisible()
+  await page.getByRole('button', { name: 'Business Groups' }).click()
+  await expect(page.getByText('Where opportunities map into Unilever priorities')).toBeVisible()
+  await page.getByRole('button', { name: 'Product Stages' }).click()
+  await expect(page.getByText('Pilot Ready')).toBeVisible()
+  await page.getByRole('button', { name: 'Lifecycle' }).click()
+  await expect(page.getByText('Form Filled')).toBeVisible()
 
   await openNav(page, 'Scoring Guide')
   await expect(page.getByRole('heading', { name: 'Scoring Guide' })).toBeVisible()
@@ -39,14 +47,36 @@ test('core navigation views render', async ({ page }) => {
   await expect(page.getByText('gurnoor.kahlon@unilever.com')).toBeVisible()
 })
 
-test('filters and manual submission modal open cleanly', async ({ page }) => {
+test('toolbar popovers and manual submission form open cleanly', async ({ page }) => {
   await page.goto('/')
+
+  await page.getByRole('button', { name: 'Custom' }).click()
+  await expect(page.getByRole('dialog', { name: 'Custom date range' })).toBeVisible()
+  await page.getByRole('button', { name: 'Apply range' }).click()
+
+  await page.getByLabel('Sort submissions').click()
+  await expect(page.getByRole('menu', { name: 'Sort options' })).toBeVisible()
+  await page.getByRole('menuitem', { name: 'UFS Score' }).click()
 
   await page.getByRole('button', { name: 'Filters' }).click()
   await expect(page.getByRole('dialog', { name: 'Filters' })).toBeVisible()
-  await page.getByRole('button', { name: 'Apply filters' }).click()
+  await page.getByRole('button', { name: 'Apply' }).click()
+
+  await page.getByLabel('Help').click()
+  await expect(page.getByRole('dialog', { name: 'Submissions help' })).toBeVisible()
+  await page.getByLabel('Close help').click()
 
   await page.getByRole('button', { name: /New Manual Submission/i }).click()
-  await expect(page.getByRole('dialog', { name: 'New manual submission' })).toBeVisible()
-  await expect(page.getByPlaceholder('Company Inc.')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'New manual submission', level: 2 })).toBeVisible()
+  await expect(page.getByText('Backfill a submission collected outside the public portal.')).toBeVisible()
+  await expect(page.getByText('Corporate R&D experience')).toBeVisible()
+})
+
+test('create user modal opens from users view', async ({ page }) => {
+  await page.goto('/')
+  await openNav(page, 'Users')
+
+  await page.getByRole('button', { name: 'New user' }).click()
+  await expect(page.getByRole('dialog', { name: 'Create user' })).toBeVisible()
+  await expect(page.getByPlaceholder('someone@unilever.com')).toBeVisible()
 })
