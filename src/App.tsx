@@ -741,19 +741,8 @@ function InsightsView({
       </div>
 
       {activeTab === 'Overview' && <InsightsOverview />}
-      {activeTab === 'Geographies' && <InsightsBreakdown title="Geographies" subtitle="Submissions by headquarters region" items={[
-        ['Europe', '26', '43%', '#6467f2'],
-        ['North America', '18', '30%', '#3b82f6'],
-        ['Asia Pacific', '12', '20%', '#10b981'],
-        ['Middle East & Africa', '5', '8%', '#f59e0b'],
-      ]} />}
-      {activeTab === 'Business Groups' && <InsightsBreakdown title="Business Groups" subtitle="Where opportunities map into Unilever priorities" items={[
-        ['Home Care', '22', '36%', '#3b82f6'],
-        ['Foods', '16', '26%', '#10b981'],
-        ['Beauty & Wellbeing', '14', '23%', '#ec4899'],
-        ['Personal Care', '11', '18%', '#6467f2'],
-        ['Digital R&D', '8', '13%', '#22c7dc'],
-      ]} />}
+      {activeTab === 'Geographies' && <GeographiesPanel />}
+      {activeTab === 'Business Groups' && <BusinessGroupsPanel />}
       {activeTab === 'Product Stages' && <StagePanel />}
       {activeTab === 'Lifecycle' && <LifecyclePanel />}
     </div>
@@ -793,26 +782,100 @@ function InsightsOverview() {
   )
 }
 
-function InsightsBreakdown({
-  items,
-  subtitle,
-  title,
-}: {
-  items: [string, string, string, string][]
-  subtitle: string
-  title: string
-}) {
+function GeographiesPanel() {
+  const regions = [
+    ['Europe', '18', '34%', '#6467f2'],
+    ['North America', '14', '26%', '#3b82f6'],
+    ['Asia Pacific', '9', '17%', '#10b981'],
+    ['Middle East', '5', '9%', '#f59e0b'],
+    ['Africa', '4', '8%', '#ff464b'],
+    ['South America', '3', '6%', '#ec4899'],
+  ] as const
+
   return (
     <div className="insight-tab-panel">
-      <div className="breakdown-grid">
-        <ChartPanel className="wide" title={title} subtitle={subtitle}>
-          <div className="ranked-bars">
-            {items.map(([label, value, percent, color]) => (
+      <ChartPanel className="map-panel" title="Geographic Distribution" subtitle="Hover over region markers to view submission details">
+        <div className="map-canvas">
+          {[
+            ['north-america', '14', '#3b82f6'],
+            ['south-america', '3', '#ec4899'],
+            ['europe', '18', '#6467f2'],
+            ['africa', '4', '#ff464b'],
+            ['middle-east', '5', '#f59e0b'],
+            ['asia-pacific', '9', '#10b981'],
+          ].map(([region, value, color]) => (
+            <span key={region} className={`map-marker ${region}`} style={{ '--marker': color } as React.CSSProperties}>
+              {value}
+            </span>
+          ))}
+          <i className="land north-america" />
+          <i className="land greenland" />
+          <i className="land south-america" />
+          <i className="land europe" />
+          <i className="land africa" />
+          <i className="land asia" />
+          <i className="land middle-east" />
+          <i className="land australia" />
+        </div>
+      </ChartPanel>
+      <div className="region-card-grid">
+        {regions.map(([label, value, percent, color]) => (
+          <article key={label} className="region-card">
+            <p>
+              <span>
+                <i style={{ background: color }} />
+                {label}
+              </span>
+              <strong>{value}</strong>
+            </p>
+            <em>
+              <i style={{ width: percent, background: color }} />
+            </em>
+            <small>{percent} of total submissions</small>
+          </article>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function BusinessGroupsPanel() {
+  const groups = [
+    ['Beauty & Wellbeing', '14', '29%', '#ec4899'],
+    ['Home Care', '12', '24%', '#3b82f6'],
+    ['Foods & Refreshment', '9', '18%', '#10b981'],
+    ['Personal Care', '7', '14%', '#8b5cf6'],
+    ['Digital R&D', '4', '8%', '#f59e0b'],
+    ['Nutrition', '3', '6%', '#ff464b'],
+  ] as const
+
+  return (
+    <div className="insight-tab-panel">
+      <div className="business-grid">
+        <ChartPanel className="business-donut-panel" title="Distribution" subtitle="Submissions by business unit">
+          <div className="business-donut-layout">
+            <div className="business-donut" />
+            <div className="business-legend">
+              {groups.map(([label, value, , color]) => (
+                <p key={label}>
+                  <span>
+                    <i style={{ background: color }} />
+                    {label}
+                  </span>
+                  <strong>{value}</strong>
+                </p>
+              ))}
+            </div>
+          </div>
+        </ChartPanel>
+        <ChartPanel title="Volume Breakdown" subtitle="Submission count per business group">
+          <div className="ranked-bars business-bars">
+            {groups.map(([label, value, percent, color]) => (
               <div key={label}>
                 <p>
                   <strong>{label}</strong>
                   <span>
-                    {value} <small>{percent}</small>
+                    {value} <small>({percent})</small>
                   </span>
                 </p>
                 <em>
@@ -822,67 +885,145 @@ function InsightsBreakdown({
             ))}
           </div>
         </ChartPanel>
-        <ChartPanel title="Priority Mix" subtitle="Tier distribution within this slice">
-          <TierBars />
-        </ChartPanel>
       </div>
-      <ChartPanel className="full" title="Notable movement" subtitle="Recent changes in this segment">
-        <ActivityList />
-      </ChartPanel>
+      <div className="business-stat-grid">
+        {groups.map(([label, value, , color]) => (
+          <article key={label} className="business-stat-card">
+            <span style={{ color, background: `${color}22` }}>
+              <BriefcaseBusiness size={18} />
+            </span>
+            <strong>{value}</strong>
+            <small>{label}</small>
+          </article>
+        ))}
+      </div>
     </div>
   )
 }
 
 function StagePanel() {
+  const stages = [
+    ['Concept / Ideation', '18', '#6467f2'],
+    ['Prototype', '14', '#8b5cf6'],
+    ['Proof of Concept', '10', '#22c7dc'],
+    ['Pilot Scale', '7', '#10b981'],
+    ['Scale-Up', '4', '#f59e0b'],
+    ['Commercial Ready', '2', '#ff464b'],
+  ] as const
+
   return (
     <div className="insight-tab-panel">
-      <div className="stage-grid">
-        {[
-          ['Discovery', '14', 'Early signal capture and fit checks', '#6467f2'],
-          ['Pilot Ready', '21', 'Evidence package supports category review', '#3b82f6'],
-          ['Commercial', '17', 'Named customers or products in market', '#10b981'],
-          ['Scale-up', '9', 'Manufacturing or market expansion work', '#f59e0b'],
-        ].map(([title, value, copy, color]) => (
-          <article key={title} className="stage-card">
-            <i style={{ background: color }} />
+      <div className="stage-main-grid">
+        <ChartPanel title="Innovation Funnel" subtitle="Submissions by development stage">
+          <div className="funnel-list">
+            {stages.map(([label, value, color], index) => (
+              <div key={label}>
+                <span style={{ background: color }}>{index + 1}</span>
+                <p>
+                  <strong>{label}</strong>
+                  <small>{value}</small>
+                </p>
+                <em>
+                  <i style={{ width: `${Number(value) * 4.5}%`, borderColor: color, background: `${color}30` }} />
+                </em>
+              </div>
+            ))}
+          </div>
+        </ChartPanel>
+        <ChartPanel title="Stage Volume" subtitle="Count of submissions at each stage">
+          <div className="horizontal-bars">
+            {stages.map(([label, value, color]) => (
+              <div key={label}>
+                <span>{label}</span>
+                <em>
+                  <i style={{ width: `${Number(value) * 5}%`, background: color }} />
+                </em>
+              </div>
+            ))}
+          </div>
+        </ChartPanel>
+      </div>
+      <div className="stage-card-grid">
+        {stages.map(([label, value, color], index) => (
+          <article key={label} className="stage-card">
+            <p>
+              <span>Stage {index + 1}</span>
+              <i style={{ background: color }} />
+            </p>
             <strong>{value}</strong>
-            <span>{title}</span>
-            <p>{copy}</p>
+            <small>{label}</small>
+            <em>
+              <i style={{ width: `${Number(value) * 4.5}%`, background: color }} />
+            </em>
           </article>
         ))}
       </div>
-      <ChartPanel title="Stage by Score Band" subtitle="Weighted opportunity maturity">
-        <BarChart />
-      </ChartPanel>
     </div>
   )
 }
 
 function LifecyclePanel() {
+  const flow = [
+    ['Submitted', '61', '2d avg', '#64748b'],
+    ['AI Scoring', '55', '3d avg', '#8b5cf6'],
+    ['Awaiting Decision', '48', '14d avg', '#f59e0b'],
+    ['In Admin Review', '35', '8d avg', '#3b82f6'],
+    ['Shortlisted', '18', '21d avg', '#10b981'],
+    ['Handed Off', '12', '5d avg', '#22c7dc'],
+    ['On Hold', '8', '45d avg', '#f97316'],
+    ['Declined', '7', '4d avg', '#ff464b'],
+    ['Closed (DQ)', '3', '7d avg', '#ff3136'],
+  ] as const
+
   return (
     <div className="insight-tab-panel">
-      <div className="lifecycle-flow">
-        {[
-          ['Form Filled', '61'],
-          ['Chat Completed', '54'],
-          ['Submitted', '47'],
-          ['AI Scoring', '34'],
-          ['Awaiting Decision', '18'],
-          ['Reviewed by Admin', '12'],
-        ].map(([label, value], index) => (
-          <article key={label}>
-            <span>{value}</span>
-            <strong>{label}</strong>
-            {index < 5 && <i />}
-          </article>
-        ))}
-      </div>
-      <div className="analytics-grid">
-        <ChartPanel title="Decision Mix" subtitle="0 decided in selected range">
-          <DonutChart />
+      <ChartPanel className="full" title="Submission Lifecycle Flow" subtitle="Volume and average time at each stage">
+        <div className="lifecycle-ribbon">
+          {flow.map(([label, value, avg, color], index) => (
+            <article key={label} style={{ '--stage-color': color } as React.CSSProperties}>
+              <strong>{value}</strong>
+              <small>{avg}</small>
+              <span>{label}</span>
+              {index < flow.length - 1 && <i />}
+            </article>
+          ))}
+        </div>
+      </ChartPanel>
+      <div className="lifecycle-grid">
+        <ChartPanel title="Volume by Status" subtitle="Submissions currently in each stage">
+          <div className="status-volume-chart">
+            {flow.map(([label, value, , color]) => (
+              <div key={label}>
+                <i style={{ height: `${Number(value) * 2}px`, background: color }} />
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
         </ChartPanel>
-        <ChartPanel title="Avg time-to-decision" subtitle="By tier">
-          <TierBars />
+        <ChartPanel title="Avg. Days per Stage" subtitle="How long submissions typically spend at each stage">
+          <div className="ranked-bars lifecycle-bars">
+            {[
+              ['On Hold', '45d', '100%', '#f97316'],
+              ['Shortlisted', '21d', '47%', '#10b981'],
+              ['Awaiting Decision', '14d', '31%', '#f59e0b'],
+              ['In Admin Review', '8d', '18%', '#3b82f6'],
+              ['Closed (DQ)', '7d', '16%', '#ff464b'],
+              ['Handed Off', '5d', '11%', '#22c7dc'],
+              ['Declined', '4d', '9%', '#ff464b'],
+              ['AI Scoring', '3d', '7%', '#8b5cf6'],
+              ['Submitted', '2d', '4%', '#64748b'],
+            ].map(([label, value, width, color]) => (
+              <div key={label}>
+                <p>
+                  <strong>{label}</strong>
+                  <span>{value}</span>
+                </p>
+                <em>
+                  <i style={{ width, background: color }} />
+                </em>
+              </div>
+            ))}
+          </div>
         </ChartPanel>
       </div>
     </div>
