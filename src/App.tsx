@@ -9,6 +9,8 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   CircleX,
   ClipboardList,
   Clock3,
@@ -386,6 +388,7 @@ function App() {
   const [showManual, setShowManual] = useState(false)
   const [showCreateUser, setShowCreateUser] = useState(false)
   const [compactNav, setCompactNav] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
 
   const openSubmissions = submissions.filter((item) => item.status !== 'Closed')
@@ -410,7 +413,7 @@ function App() {
   }[activeView]
 
   return (
-    <div className="app-shell" data-theme={theme}>
+    <div className={`app-shell ${sidebarCollapsed ? 'nav-collapsed' : ''}`} data-theme={theme}>
       <aside className={`sidebar ${compactNav ? 'is-open' : ''}`}>
         <button className="mobile-menu" type="button" onClick={() => setCompactNav(false)} aria-label="Close menu">
           <X size={18} />
@@ -423,6 +426,15 @@ function App() {
             <strong>Unilever</strong>
             <small>R&D Portal</small>
           </span>
+          <button
+            className="sidebar-collapse"
+            type="button"
+            onClick={() => setSidebarCollapsed((current) => !current)}
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
         </div>
 
         <div className="nav-block">
@@ -436,6 +448,7 @@ function App() {
                 setActiveView(item.id)
                 setCompactNav(false)
               }}
+              title={item.label}
             >
               <item.icon size={17} />
               <span>{item.label}</span>
@@ -450,6 +463,7 @@ function App() {
             setActiveView('settings')
             setCompactNav(false)
           }}
+          title="Settings"
         >
           <Settings size={17} />
           <span>Settings</span>
@@ -1188,6 +1202,49 @@ function ActivityList() {
 }
 
 function ScoringGuideView() {
+  const tierOutcomes = [
+    {
+      tier: 'Tier 1',
+      range: '8-10',
+      label: 'Strategic Priority',
+      action: 'Immediate outreach; escalate to category leadership; fast-track partnership discussion',
+      sla: '48 hours initial response',
+      tone: 'green',
+    },
+    {
+      tier: 'Tier 2',
+      range: '6.5-7.9',
+      label: 'High Potential',
+      action: 'Proactive outreach within 2 weeks; assign category owner; develop partnership thesis',
+      sla: '2 weeks evaluation completion',
+      tone: 'blue',
+    },
+    {
+      tier: 'Tier 3',
+      range: '5-6.4',
+      label: 'Monitor & Develop',
+      action: 'Add to watch list; quarterly review; engage if strategic trigger occurs',
+      sla: 'Acknowledgment within 1 week',
+      tone: 'amber',
+    },
+    {
+      tier: 'Tier 4',
+      range: '3-4.9',
+      label: 'Low Priority',
+      action: 'Archive for future reference; no active engagement; re-evaluate if company pivots',
+      sla: 'Response within 1 week',
+      tone: 'orange',
+    },
+    {
+      tier: 'Tier 5',
+      range: '0-2.9',
+      label: 'Not Aligned',
+      action: 'Polite decline with brief rationale; do not add to active tracking',
+      sla: 'Response within 1 week',
+      tone: 'red',
+    },
+  ]
+
   return (
     <div className="view-stack scoring-view">
       <div className="framework-grid">
@@ -1279,16 +1336,20 @@ function ScoringGuideView() {
           <p>Final UFS scores map to these review outcomes.</p>
         </div>
         <div className="tier-table">
-          {[
-            ['Tier 1', '8-10', 'Strategic Priority', 'Immediate outreach and category escalation', '48 hours'],
-            ['Tier 2', '6.5-7.9', 'High Potential', 'Assign owner and develop partnership thesis', '2 weeks'],
-            ['Tier 3', '5-6.4', 'Monitor', 'Request evidence and revisit after milestone', '30 days'],
-            ['Tier 4', '3-4.9', 'Low Fit', 'Archive with rationale', 'No SLA'],
-          ].map((row) => (
-            <div key={row[0]}>
-              {row.map((cell) => (
-                <span key={cell}>{cell}</span>
-              ))}
+          <div className="tier-table-head" role="row">
+            <span>Tier</span>
+            <span>Score Range</span>
+            <span>Label</span>
+            <span>Action</span>
+            <span>SLA</span>
+          </div>
+          {tierOutcomes.map((row) => (
+            <div key={row.tier} className={`tier-table-row tier-${row.tone}`} role="row">
+              <strong>{row.tier}</strong>
+              <span className="tier-range">{row.range}</span>
+              <span className="tier-label-pill">{row.label}</span>
+              <p>{row.action}</p>
+              <em>{row.sla}</em>
             </div>
           ))}
         </div>

@@ -24,6 +24,11 @@
   background:
     radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.08), transparent 26rem),
     linear-gradient(180deg, #080d18 0%, var(--bg) 45%);
+  transition: grid-template-columns 180ms ease;
+}
+
+.app-shell.nav-collapsed {
+  grid-template-columns: 76px minmax(0, 1fr);
 }
 
 .app-shell[data-theme='light'] {
@@ -63,8 +68,8 @@ button {
 }
 
 [data-theme='light'] .sidebar {
-  background: #0a1020;
-  color: #f5f8ff;
+  background: rgba(255, 255, 255, 0.96);
+  color: #172033;
 }
 
 .brand-lockup {
@@ -74,6 +79,7 @@ button {
   gap: 10px;
   padding: 0 16px;
   border-bottom: 1px solid var(--border);
+  position: relative;
 }
 
 .brand-mark {
@@ -102,6 +108,38 @@ button {
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+[data-theme='light'] .brand-lockup small {
+  color: var(--muted);
+}
+
+.sidebar-collapse {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.sidebar-collapse:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+  background: rgba(102, 98, 241, 0.14);
+}
+
+[data-theme='light'] .sidebar-collapse {
+  background: #f7f9fd;
 }
 
 .nav-block {
@@ -138,9 +176,18 @@ button {
     transform 160ms ease;
 }
 
+[data-theme='light'] .nav-item {
+  color: #415274;
+}
+
 .nav-item:hover {
   background: rgba(102, 98, 241, 0.14);
   transform: translateX(2px);
+}
+
+[data-theme='light'] .nav-item:hover {
+  color: #2639d8;
+  background: #eef2ff;
 }
 
 .nav-item.active {
@@ -152,6 +199,62 @@ button {
 .settings-link {
   margin: auto 12px 12px;
   color: #9fb2dc;
+}
+
+[data-theme='light'] .settings-link {
+  color: #5d7198;
+}
+
+.nav-collapsed .sidebar {
+  align-items: center;
+}
+
+.nav-collapsed .brand-lockup {
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+}
+
+.nav-collapsed .brand-lockup span:last-of-type,
+.nav-collapsed .nav-block p,
+.nav-collapsed .nav-item span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.nav-collapsed .sidebar-collapse {
+  position: absolute;
+  right: -15px;
+  z-index: 2;
+  margin-left: 0;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.nav-collapsed .nav-block {
+  width: 100%;
+  padding: 18px 10px;
+}
+
+.nav-collapsed .nav-item {
+  width: 52px;
+  height: 46px;
+  justify-content: center;
+  padding: 0;
+  margin: 0 auto;
+}
+
+.nav-collapsed .nav-item:hover {
+  transform: translateY(-1px);
+}
+
+.nav-collapsed .settings-link {
+  margin-inline: auto;
+  margin-bottom: 12px;
 }
 
 .workspace {
@@ -1715,17 +1818,122 @@ button {
 .tier-table {
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
-.tier-table div {
+.tier-table-head,
+.tier-table-row {
   display: grid;
-  grid-template-columns: 0.7fr 0.8fr 1fr 2fr 0.8fr;
-  gap: 12px;
-  padding: 14px 16px;
+  grid-template-columns: 0.72fr 0.9fr 1.25fr minmax(300px, 2.8fr) 1.45fr;
+  align-items: center;
+  gap: 24px;
+}
+
+.tier-table-head {
+  min-height: 58px;
+  padding: 0 24px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.tier-table-row {
+  min-height: 80px;
+  padding: 18px 24px;
   border-top: 1px solid var(--border);
-  background: var(--surface);
   font-size: 13px;
+  line-height: 1.55;
+}
+
+.tier-table-row strong {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.tier-table-row p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.tier-table-row em {
+  color: var(--text);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.tier-range {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.tier-label-pill {
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.tier-green strong,
+.tier-green .tier-label-pill {
+  color: #00b86b;
+}
+
+.tier-blue strong,
+.tier-blue .tier-label-pill {
+  color: #3b82f6;
+}
+
+.tier-amber strong,
+.tier-amber .tier-label-pill {
+  color: #f59e0b;
+}
+
+.tier-orange strong,
+.tier-orange .tier-label-pill {
+  color: #f97316;
+}
+
+.tier-red strong,
+.tier-red .tier-label-pill {
+  color: #ff464b;
+}
+
+.tier-green .tier-label-pill {
+  background: rgba(0, 184, 107, 0.12);
+}
+
+.tier-blue .tier-label-pill {
+  background: rgba(59, 130, 246, 0.13);
+}
+
+.tier-amber .tier-label-pill {
+  background: rgba(245, 158, 11, 0.13);
+}
+
+.tier-orange .tier-label-pill {
+  background: rgba(249, 115, 22, 0.13);
+}
+
+.tier-red .tier-label-pill {
+  background: rgba(255, 70, 75, 0.13);
+}
+
+[data-theme='light'] .tier-table {
+  box-shadow: none;
+}
+
+[data-theme='light'] .tier-table-row p {
+  color: #4f6389;
 }
 
 .tier-table div:first-child {
@@ -2440,7 +2648,7 @@ button {
     width: 100%;
   }
 
-  .brand-lockup span:last-child,
+  .brand-lockup span:last-of-type,
   .nav-block p,
   .nav-item span {
     display: none;
@@ -2532,10 +2740,16 @@ button {
     background: rgba(2, 6, 18, 0.62);
   }
 
-  .sidebar .brand-lockup span:last-child,
+  .sidebar .brand-lockup span:last-of-type,
   .sidebar .nav-block p,
   .sidebar .nav-item span {
     display: block;
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
   }
 
   .sidebar {
@@ -2549,6 +2763,14 @@ button {
 
   .nav-item {
     justify-content: flex-start;
+    width: 100%;
+    height: auto;
+    padding: 12px;
+    margin: 0;
+  }
+
+  .sidebar-collapse {
+    display: none;
   }
 
   .topbar {
@@ -2610,8 +2832,9 @@ button {
     overflow-x: auto;
   }
 
-  .tier-table div {
-    min-width: 760px;
+  .tier-table-head,
+  .tier-table-row {
+    min-width: 900px;
   }
 
   .data-table-card {

@@ -76,6 +76,22 @@ test('toolbar popovers and manual submission form open cleanly', async ({ page }
   await expect(page.getByText('Corporate R&D experience')).toBeVisible()
 })
 
+test('theme toggle and collapsed sidebar preserve navigation', async ({ page }) => {
+  test.skip(Boolean(page.viewportSize() && page.viewportSize()!.width <= 820), 'Desktop sidebar collapse is hidden on mobile')
+
+  await page.goto('/')
+
+  await page.getByLabel('Toggle theme').click()
+  await expect(page.locator('.app-shell')).toHaveAttribute('data-theme', 'light')
+
+  await page.getByLabel('Collapse sidebar').click()
+  await expect(page.locator('.app-shell')).toHaveClass(/nav-collapsed/)
+  await expect(page.getByLabel('Expand sidebar')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Users' }).click()
+  await expect(page.getByRole('heading', { name: 'Users' })).toBeVisible()
+})
+
 test('create user modal opens from users view', async ({ page }) => {
   await page.goto('/')
   await openNav(page, 'Users')
