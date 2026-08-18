@@ -93,7 +93,7 @@ const submissions: Submission[] = [
     groups: ['Home Care', 'Personal Care'],
     region: 'Europe',
     date: 'Apr 7, 2026',
-    owner: 'Gurnoor Kahlon',
+    owner: 'Jordan Reyes',
     summary:
       'Bio-based surfactant chemistry with strong category relevance, defensible process IP, and near-term pathway for Home Care formulation testing.',
     nextStep: 'Escalate to category leadership and open technical diligence within 48 hours.',
@@ -108,7 +108,7 @@ const submissions: Submission[] = [
     groups: ['Foods'],
     region: 'Europe',
     date: 'Apr 9, 2026',
-    owner: 'Sarah Chen',
+    owner: 'Priya Nandan',
     summary:
       'Precision fermentation input with promising unit economics and early customer pilots in adjacent food applications.',
     nextStep: 'Request clearer exclusivity position and updated capacity timeline.',
@@ -123,7 +123,7 @@ const submissions: Submission[] = [
     groups: ['Beauty & Wellbeing', 'Digital R&D'],
     region: 'North America',
     date: 'Mar 28, 2026',
-    owner: 'Marcus Webb',
+    owner: 'Marcus Cole',
     summary:
       'AI-enabled skin assessment platform with interesting engagement data, but a complex regulatory and claims pathway.',
     nextStep: 'Clarify consumer claims strategy and data privacy posture.',
@@ -138,7 +138,7 @@ const submissions: Submission[] = [
     groups: ['Foods', 'Home Care'],
     region: 'Europe',
     date: 'Mar 15, 2026',
-    owner: 'James OBrien',
+    owner: 'Elena Fischer',
     summary:
       'Enzyme platform with cross-category application potential and evidence from commercial ingredient partnerships.',
     nextStep: 'Confirm preferred use case and assign technical reviewer.',
@@ -168,7 +168,7 @@ const submissions: Submission[] = [
     groups: ['Foods', 'Beauty & Wellbeing'],
     region: 'Asia Pacific',
     date: 'Feb 28, 2026',
-    owner: 'Sarah Chen',
+    owner: 'Priya Nandan',
     summary:
       'Clinically supported probiotic blend with partner-ready materials and strong overlap with nutrition priorities.',
     nextStep: 'Schedule discovery call with Foods and Beauty & Wellbeing stakeholders.',
@@ -183,7 +183,7 @@ const submissions: Submission[] = [
     groups: ['Home Care', 'Digital R&D'],
     region: 'North America',
     date: 'Mar 5, 2026',
-    owner: 'James OBrien',
+    owner: 'Elena Fischer',
     summary:
       'Connected cleaning insights platform with mature pilots and direct relevance for usage analytics.',
     nextStep: 'Follow partner handoff and capture diligence notes in the category workspace.',
@@ -213,7 +213,7 @@ const submissions: Submission[] = [
     groups: ['Foods'],
     region: 'Europe',
     date: 'Jan 18, 2026',
-    owner: 'PJ Mistry',
+    owner: 'Ravi Shenoy',
     summary:
       'Preservation claims were compelling, but evidence did not support a scalable consumer product pathway.',
     nextStep: 'No active action. Keep company tagged for future evidence refresh.',
@@ -228,7 +228,7 @@ const submissions: Submission[] = [
     groups: ['Home Care', 'Personal Care'],
     region: 'North America',
     date: 'Dec 11, 2025',
-    owner: 'Hebe Zuo',
+    owner: 'Sofia Nakamura',
     summary:
       'Interesting refill hardware concept, closed because of exclusivity constraints in priority markets.',
     nextStep: 'Archive diligence notes and flag exclusivity if partner status changes.',
@@ -237,65 +237,65 @@ const submissions: Submission[] = [
 
 const users: User[] = [
   {
-    initials: 'GK',
-    name: 'Gurnoor Kahlon',
-    email: 'gurnoor.kahlon@unilever.com',
+    initials: 'JR',
+    name: 'Jordan Reyes',
+    email: 'jordan.reyes@example.com',
     role: 'Owner',
     status: 'Active',
     lastLogin: '7/13/2026, 3:36:51 PM',
   },
   {
-    initials: 'HZ',
-    name: 'Hebe Zuo',
-    email: 'hebe.zuo2@unilever.com',
+    initials: 'SN',
+    name: 'Sofia Nakamura',
+    email: 'sofia.nakamura@example.com',
     role: 'Owner',
     status: 'Active',
     lastLogin: 'Never',
   },
   {
-    initials: 'PM',
-    name: 'PJ Mistry',
-    email: 'pj.mistry@unilever.com',
+    initials: 'RS',
+    name: 'Ravi Shenoy',
+    email: 'ravi.shenoy@example.com',
     role: 'Admin',
     status: 'Active',
     lastLogin: 'Never',
   },
   {
-    initials: 'JM',
-    name: 'Joshua Mathew',
-    email: 'joshua.mathew@unilever.com',
+    initials: 'OB',
+    name: 'Owen Baptiste',
+    email: 'owen.baptiste@example.com',
     role: 'Admin',
     status: 'Active',
     lastLogin: '6/29/2026, 7:54:54 AM',
   },
   {
-    initials: 'AT',
-    name: 'Amit Tawani',
-    email: 'amit.tawani@unilever.com',
+    initials: 'LW',
+    name: 'Lena Whitfield',
+    email: 'lena.whitfield@example.com',
     role: 'Admin',
     status: 'Active',
     lastLogin: 'Never',
   },
   {
-    initials: 'CE',
-    name: 'Chris Evans',
-    email: 'chris.evans@unilever.com',
+    initials: 'TO',
+    name: 'Tariq Osei',
+    email: 'tariq.osei@example.com',
     role: 'Admin',
     status: 'Active',
     lastLogin: 'Never',
   },
   {
-    initials: 'MO',
-    name: 'Milad Olad',
-    email: 'milad.olad@unilever.com',
+    initials: 'DO',
+    name: 'Devon Okafor',
+    email: 'devon.okafor@example.com',
     role: 'Owner',
     status: 'Active',
     lastLogin: '7/9/2026, 7:42:00 PM',
   },
   {
-    initials: 'LL',
-    name: 'Lucy Liu',
-    email: 'lucy.liu2@unilever.com',
+    initials: 'NP',
+    name: 'Naomi Park',
+    email: 'naomi.park@example.com',
     role: 'Owner',
     status: 'Active',
     lastLogin: 'Never',
@@ -303,7 +303,7 @@ const users: User[] = [
   {
     initials: 'DR',
     name: 'Demo Reviewer',
-    email: 'demo.reviewer@unilever.com',
+    email: 'demo.reviewer@example.com',
     role: 'Reviewer',
     status: 'Active',
     lastLogin: 'Never',
@@ -374,10 +374,10 @@ const disqualifiers = [
 ]
 
 const activityItems = [
-  ['NutriBoost Probiotic Blend', 'Shortlisted by Sarah Chen', '2h ago'],
-  ['GreenShield Surfactant Platform', 'Moved to Admin Review by Gurnoor Kahlon', '5h ago'],
-  ['SkinAI Diagnostic Platform', 'Placed On Hold by Marcus Webb', '1d ago'],
-  ['SmartClean IoT Platform', 'Handed Off by James OBrien', '2d ago'],
+  ['NutriBoost Probiotic Blend', 'Shortlisted by Priya Nandan', '2h ago'],
+  ['GreenShield Surfactant Platform', 'Moved to Admin Review by Jordan Reyes', '5h ago'],
+  ['SkinAI Diagnostic Platform', 'Placed On Hold by Marcus Cole', '1d ago'],
+  ['SmartClean IoT Platform', 'Handed Off by Elena Fischer', '2d ago'],
 ]
 
 function App() {
@@ -493,8 +493,8 @@ function App() {
               <Sun size={18} />
             </button>
             <div className="profile-chip">
-              <span>GK</span>
-              <strong>Gurnoor Kahlon</strong>
+              <span>JR</span>
+              <strong>Jordan Reyes</strong>
               <ChevronDown size={16} />
             </div>
           </div>
@@ -1433,8 +1433,8 @@ function UsersView({ setShowCreateUser }: { setShowCreateUser: (value: boolean) 
       <ChartPanel title="User management activity" subtitle="Audit history for access changes">
         <div className="activity-list compact">
           {[
-            ['User created', 'Assigned Owner to milad.olad@unilever.com', '7/9/2026, 7:43:16 PM'],
-            ['Role changed', 'Admin to Owner for hebe.zuo2@unilever.com', '7/7/2026, 1:17:44 PM'],
+            ['User created', 'Assigned Owner to devon.okafor@example.com', '7/9/2026, 7:43:16 PM'],
+            ['Role changed', 'Admin to Owner for sofia.nakamura@example.com', '7/7/2026, 1:17:44 PM'],
           ].map(([title, copy, time]) => (
             <div key={title}>
               <span>
@@ -1734,7 +1734,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
         <div className="form-grid single-column">
           <label>
             Email
-            <input placeholder="someone@unilever.com" />
+            <input placeholder="someone@example.com" />
           </label>
           <label>
             Full name
