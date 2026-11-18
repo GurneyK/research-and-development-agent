@@ -85,8 +85,8 @@ const navItems = [
 const submissions: Submission[] = [
   {
     id: 1,
-    name: 'GreenShield Surfactant Platform',
-    company: 'GreenShield Bio B.V.',
+    name: 'Bio-based Surfactant Platform',
+    company: 'Veltrano Bio B.V.',
     status: 'In Admin Review',
     score: 8.9,
     tier: 'Tier 1',
@@ -100,8 +100,8 @@ const submissions: Submission[] = [
   },
   {
     id: 2,
-    name: 'Fermento Base',
-    company: 'Fermento Base GmbH',
+    name: 'Fermented Protein Base',
+    company: 'Orvello Foods GmbH',
     status: 'On Hold',
     score: 7.8,
     tier: 'Tier 2',
@@ -115,8 +115,8 @@ const submissions: Submission[] = [
   },
   {
     id: 3,
-    name: 'SkinAI Diagnostic Platform',
-    company: 'SkinAI Labs Inc.',
+    name: 'Skin Imaging Diagnostic Platform',
+    company: 'Kestrova Labs Inc.',
     status: 'On Hold',
     score: 5.3,
     tier: 'Tier 3',
@@ -130,8 +130,8 @@ const submissions: Submission[] = [
   },
   {
     id: 4,
-    name: 'BioSynth Enzyme Complex',
-    company: 'EnzyTech AG',
+    name: 'Multi-use Enzyme Complex',
+    company: 'Zentaro AG',
     status: 'Awaiting Decision',
     score: 7.2,
     tier: 'Tier 2',
@@ -145,8 +145,8 @@ const submissions: Submission[] = [
   },
   {
     id: 5,
-    name: 'PlasticAlt Packaging Solution',
-    company: 'GreenPack Corp.',
+    name: 'Compostable Packaging Substrate',
+    company: 'Pellwyn Materials Corp.',
     status: 'AI Scoring',
     score: 6.1,
     tier: 'Tier 3',
@@ -160,8 +160,8 @@ const submissions: Submission[] = [
   },
   {
     id: 6,
-    name: 'NutriBoost Probiotic Blend',
-    company: 'VitalFlora Ltd.',
+    name: 'Probiotic Nutrition Blend',
+    company: 'Marovia Life Sciences Ltd.',
     status: 'Shortlisted',
     score: 8.4,
     tier: 'Tier 1',
@@ -175,8 +175,8 @@ const submissions: Submission[] = [
   },
   {
     id: 7,
-    name: 'SmartClean IoT Platform',
-    company: 'CleanTech Systems Inc.',
+    name: 'Connected Cleaning Analytics',
+    company: 'Quillon Systems Inc.',
     status: 'Handed Off',
     score: 7.9,
     tier: 'Tier 2',
@@ -190,8 +190,8 @@ const submissions: Submission[] = [
   },
   {
     id: 8,
-    name: 'DermaPeptide Complex',
-    company: 'BioLab Singapore',
+    name: 'Peptide Skin Ingredient',
+    company: 'Selvari Bio Pte. Ltd.',
     status: 'Submitted',
     score: null,
     tier: null,
@@ -205,8 +205,8 @@ const submissions: Submission[] = [
   },
   {
     id: 9,
-    name: 'ColdChain Natural Preservatives',
-    company: 'Nordic Fresh AB',
+    name: 'Natural Preservative System',
+    company: 'Fjordaline AB',
     status: 'Closed',
     score: 4.9,
     tier: 'Tier 4',
@@ -220,8 +220,8 @@ const submissions: Submission[] = [
   },
   {
     id: 10,
-    name: 'AquaSense Refill Station',
-    company: 'LoopWorks Labs',
+    name: 'Refill Station Hardware',
+    company: 'Tavrin Labs',
     status: 'Closed',
     score: 6.6,
     tier: 'Tier 2',
@@ -374,10 +374,10 @@ const disqualifiers = [
 ]
 
 const activityItems = [
-  ['NutriBoost Probiotic Blend', 'Shortlisted by Priya Nandan', '2h ago'],
-  ['GreenShield Surfactant Platform', 'Moved to Admin Review by Jordan Reyes', '5h ago'],
-  ['SkinAI Diagnostic Platform', 'Placed On Hold by Marcus Cole', '1d ago'],
-  ['SmartClean IoT Platform', 'Handed Off by Elena Fischer', '2d ago'],
+  ['Probiotic Nutrition Blend', 'Shortlisted by Priya Nandan', '2h ago'],
+  ['Bio-based Surfactant Platform', 'Moved to Admin Review by Jordan Reyes', '5h ago'],
+  ['Skin Imaging Diagnostic Platform', 'Placed On Hold by Marcus Cole', '1d ago'],
+  ['Connected Cleaning Analytics', 'Handed Off by Elena Fischer', '2d ago'],
 ]
 
 function App() {
