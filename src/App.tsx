@@ -93,7 +93,7 @@ const submissions: Submission[] = [
     groups: ['Home Care', 'Personal Care'],
     region: 'Europe',
     date: 'Apr 7, 2026',
-    owner: 'Jordan Reyes',
+    owner: 'Gurnoor Kahlon',
     summary:
       'Bio-based surfactant chemistry with strong category relevance, defensible process IP, and near-term pathway for Home Care formulation testing.',
     nextStep: 'Escalate to category leadership and open technical diligence within 48 hours.',
@@ -237,9 +237,9 @@ const submissions: Submission[] = [
 
 const users: User[] = [
   {
-    initials: 'JR',
-    name: 'Jordan Reyes',
-    email: 'jordan.reyes@example.com',
+    initials: 'GK',
+    name: 'Gurnoor Kahlon',
+    email: 'gurnoor.kahlon@example.com',
     role: 'Owner',
     status: 'Active',
     lastLogin: '7/13/2026, 3:36:51 PM',
@@ -375,7 +375,7 @@ const disqualifiers = [
 
 const activityItems = [
   ['Probiotic Nutrition Blend', 'Shortlisted by Priya Nandan', '2h ago'],
-  ['Bio-based Surfactant Platform', 'Moved to Admin Review by Jordan Reyes', '5h ago'],
+  ['Bio-based Surfactant Platform', 'Moved to Admin Review by Gurnoor Kahlon', '5h ago'],
   ['Skin Imaging Diagnostic Platform', 'Placed On Hold by Marcus Cole', '1d ago'],
   ['Connected Cleaning Analytics', 'Handed Off by Elena Fischer', '2d ago'],
 ]
@@ -493,8 +493,8 @@ function App() {
               <Sun size={18} />
             </button>
             <div className="profile-chip">
-              <span>JR</span>
-              <strong>Jordan Reyes</strong>
+              <span>GK</span>
+              <strong>Gurnoor Kahlon</strong>
               <ChevronDown size={16} />
             </div>
           </div>
