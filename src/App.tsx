@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Activity,
   ArrowUpDown,
@@ -20,9 +20,11 @@ import {
   Globe2,
   HelpCircle,
   Layers3,
+  LogOut,
   Mail,
   MapPin,
   Menu,
+  Moon,
   MoreHorizontal,
   Plus,
   Search,
@@ -73,6 +75,44 @@ type Submission = {
   summary: string
   nextStep: string
   closure?: Closure
+}
+
+type AppNotification = {
+  id: number
+  kind: 'new' | 'decision' | 'sla' | 'mention'
+  title: string
+  detail: string
+  time: string
+  submissionId: number
+  read: boolean
+}
+
+const initialNotifications: AppNotification[] = [
+  { id: 1, kind: 'new', title: 'New submission', detail: 'Plant-based Fat Structurant needs first-pass screening.', time: '5h ago', submissionId: 15, read: false },
+  { id: 2, kind: 'sla', title: 'Response due in 2 days', detail: 'Cold-Water Stain Enzyme is waiting on a category owner.', time: '8h ago', submissionId: 12, read: false },
+  { id: 3, kind: 'mention', title: 'Elena Fischer mentioned you', detail: 'Smart Dosing Dispenser: "Can you weigh in on pilot vs. data deal?"', time: '1d ago', submissionId: 14, read: false },
+  { id: 4, kind: 'decision', title: 'Submission declined', detail: 'Owen Baptiste closed Aroma Encapsulation Beads after diligence.', time: '2d ago', submissionId: 20, read: true },
+  { id: 5, kind: 'new', title: 'AI scoring finished', detail: 'Microbiome Scalp Serum Base scored 6.4 (Tier 3).', time: '3d ago', submissionId: 13, read: true },
+]
+
+const notificationIcon = { new: Sparkles, decision: CircleX, sla: Clock3, mention: Mail }
+
+function useOutsideClose(open: boolean, onClose: () => void) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const onDown = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) onClose()
+    }
+    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open, onClose])
+  return ref
 }
 
 const closedStatuses: SubmissionStatus[] = ['Declined', 'Disqualified']
@@ -590,6 +630,23 @@ function App() {
   const [compactNav, setCompactNav] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [notifications, setNotifications] = useState(initialNotifications)
+  const [menu, setMenu] = useState<'notifications' | 'profile' | null>(null)
+  const closeMenu = () => setMenu(null)
+  const menuRef = useOutsideClose(menu !== null, closeMenu)
+  const unread = notifications.filter((item) => !item.read).length
+  const openNotification = (item: AppNotification) => {
+    setNotifications((current) => current.map((n) => (n.id === item.id ? { ...n, read: true } : n)))
+    setShowManual(false)
+    setActiveView('submissions')
+    setSelectedSubmission(submissions.find((sub) => sub.id === item.submissionId) ?? null)
+    setMenu(null)
+  }
+  const goTo = (view: View) => {
+    setShowManual(false)
+    setActiveView(view)
+    setMenu(null)
+  }
 
   const openSubmissions = submissions.filter((item) => !isClosed(item)).sort(byNewest)
   const closedSubmissions = submissions.filter(isClosed).sort(byNewest)
@@ -680,23 +737,119 @@ function App() {
             </button>
             <h1>{title}</h1>
           </div>
-          <div className="topbar-actions">
-            <button className="icon-button" type="button" aria-label="Notifications">
-              <Bell size={18} />
-            </button>
+          <div className="topbar-actions" ref={menuRef}>
             <button
-              className="icon-button"
+              className={menu === 'notifications' ? 'icon-button bell-button is-active' : 'icon-button bell-button'}
+              type="button"
+              aria-label={unread ? `Notifications, ${unread} unread` : 'Notifications'}
+              aria-expanded={menu === 'notifications'}
+              onClick={() => setMenu((current) => (current === 'notifications' ? null : 'notifications'))}
+            >
+              <Bell size={18} />
+              {unread > 0 && <span className="bell-badge">{unread}</span>}
+            </button>
+            {menu === 'notifications' && (
+              <div className="floating-popover notifications-popover" role="dialog" aria-label="Notifications">
+                <header>
+                  <strong>
+                    Notifications {unread > 0 && <em>{unread} new</em>}
+                  </strong>
+                  <button
+                    type="button"
+                    className="text-action"
+                    disabled={!unread}
+                    onClick={() => setNotifications((current) => current.map((n) => ({ ...n, read: true })))}
+                  >
+                    Mark all read
+                  </button>
+                </header>
+                <div className="notification-list">
+                  {notifications.map((item) => {
+                    const Icon = notificationIcon[item.kind]
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={item.read ? 'notification-item' : 'notification-item unread'}
+                        onClick={() => openNotification(item)}
+                      >
+                        <span className={`notification-icon ${item.kind}`}>
+                          <Icon size={15} />
+                        </span>
+                        <span className="notification-copy">
+                          <strong>{item.title}</strong>
+                          <small>{item.detail}</small>
+                          <time>{item.time}</time>
+                        </span>
+                        {!item.read && <i aria-label="Unread" />}
+                      </button>
+                    )
+                  })}
+                </div>
+                <footer>
+                  <button type="button" onClick={() => goTo('settings')}>
+                    <Settings size={14} />
+                    Notification settings
+                  </button>
+                </footer>
+              </div>
+            )}
+            <button
+              className="icon-button theme-button"
               type="button"
               aria-label="Toggle theme"
               onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
             >
               <Sun size={18} />
             </button>
-            <div className="profile-chip">
+            <button
+              className={menu === 'profile' ? 'profile-chip is-open' : 'profile-chip'}
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={menu === 'profile'}
+              onClick={() => setMenu((current) => (current === 'profile' ? null : 'profile'))}
+            >
               <span>GK</span>
               <strong>Gurnoor Kahlon</strong>
               <ChevronDown size={16} />
-            </div>
+            </button>
+            {menu === 'profile' && (
+              <div className="floating-popover profile-popover" role="menu" aria-label="Account">
+                <div className="profile-summary">
+                  <span>GK</span>
+                  <div>
+                    <strong>Gurnoor Kahlon</strong>
+                    <small>gurnoor.kahlon@example.com</small>
+                    <em>Owner · R&D Portal</em>
+                  </div>
+                </div>
+                <div className="profile-actions">
+                  <button type="button" role="menuitem" onClick={() => goTo('users')}>
+                    <Users size={15} />
+                    Users & roles
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => goTo('settings')}>
+                    <Settings size={15} />
+                    Workspace settings
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+                  >
+                    {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+                    {theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                  </button>
+                </div>
+                <div className="profile-actions">
+                  <button type="button" role="menuitem" disabled title="Sign out is turned off in this demo">
+                    <LogOut size={15} />
+                    Sign out
+                    <small>Demo</small>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </header>
 
