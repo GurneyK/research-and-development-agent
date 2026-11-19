@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   Activity,
   ArrowUpDown,
@@ -49,7 +49,15 @@ type SubmissionStatus =
   | 'Shortlisted'
   | 'Handed Off'
   | 'Submitted'
-  | 'Closed'
+  | 'Declined'
+  | 'Disqualified'
+
+type Closure = {
+  closedOn: string
+  decidedBy: string
+  filter?: string
+  partnerUpdate: string
+}
 
 type Submission = {
   id: number
@@ -64,7 +72,12 @@ type Submission = {
   owner: string
   summary: string
   nextStep: string
+  closure?: Closure
 }
+
+const closedStatuses: SubmissionStatus[] = ['Declined', 'Disqualified']
+const isClosed = (item: Submission) => closedStatuses.includes(item.status)
+const byNewest = (a: Submission, b: Submission) => Date.parse(b.date) - Date.parse(a.date)
 
 type User = {
   initials: string
@@ -207,7 +220,7 @@ const submissions: Submission[] = [
     id: 9,
     name: 'Natural Preservative System',
     company: 'Fjordaline AB',
-    status: 'Closed',
+    status: 'Declined',
     score: 4.9,
     tier: 'Tier 4',
     groups: ['Foods'],
@@ -217,21 +230,208 @@ const submissions: Submission[] = [
     summary:
       'Preservation claims were compelling, but evidence did not support a scalable consumer product pathway.',
     nextStep: 'No active action. Keep company tagged for future evidence refresh.',
+    closure: {
+      closedOn: 'Feb 2, 2026',
+      decidedBy: 'Ravi Shenoy',
+      partnerUpdate: 'Decline sent with rationale. Invited to resubmit with shelf-life data from a scaled batch.',
+    },
   },
   {
     id: 10,
     name: 'Refill Station Hardware',
     company: 'Tavrin Labs',
-    status: 'Closed',
-    score: 6.6,
-    tier: 'Tier 2',
+    status: 'Disqualified',
+    score: null,
+    tier: null,
     groups: ['Home Care', 'Personal Care'],
     region: 'North America',
     date: 'Dec 11, 2025',
     owner: 'Sofia Nakamura',
     summary:
-      'Interesting refill hardware concept, closed because of exclusivity constraints in priority markets.',
-    nextStep: 'Archive diligence notes and flag exclusivity if partner status changes.',
+      'Interesting refill hardware concept, but the company is in an exclusive partnership with a direct competitor.',
+    nextStep: 'Archive notes and flag the company if the exclusivity ends.',
+    closure: {
+      closedOn: 'Dec 12, 2025',
+      decidedBy: 'Hard filter check',
+      filter: 'DQ-2 · Competitor acquisition / exclusivity',
+      partnerUpdate: 'Polite decline sent. Not added to active tracking.',
+    },
+  },
+  {
+    id: 11,
+    name: 'Upcycled Fibre Coating',
+    company: 'Norrevik Materials AB',
+    status: 'Shortlisted',
+    score: 8.1,
+    tier: 'Tier 1',
+    groups: ['Home Care', 'Personal Care'],
+    region: 'Europe',
+    date: 'May 6, 2026',
+    owner: 'Gurnoor Kahlon',
+    summary:
+      'Fibre coating made from upcycled textile waste, with pilot data on durability and a clear fit with fabric care priorities.',
+    nextStep: 'Book a discovery call with Home Care and request pilot batch results.',
+  },
+  {
+    id: 12,
+    name: 'Cold-Water Stain Enzyme',
+    company: 'Halvora Biotech Inc.',
+    status: 'In Admin Review',
+    score: 7.6,
+    tier: 'Tier 2',
+    groups: ['Home Care'],
+    region: 'North America',
+    date: 'Jun 3, 2026',
+    owner: 'Owen Baptiste',
+    summary:
+      'Enzyme blend that removes common stains at 20°C, with lab evidence and two retailer pilots under way.',
+    nextStep: 'Assign a category owner and request independent wash-test results within two weeks.',
+  },
+  {
+    id: 13,
+    name: 'Microbiome Scalp Serum Base',
+    company: 'Ondessa Labs Ltd.',
+    status: 'AI Scoring',
+    score: 6.4,
+    tier: 'Tier 3',
+    groups: ['Beauty & Wellbeing'],
+    region: 'Europe',
+    date: 'Jul 22, 2026',
+    owner: 'AI Review',
+    summary:
+      'Serum base built around scalp microbiome balance. Early consumer data is promising; the claims evidence is still thin.',
+    nextStep: 'Finish evidence extraction and check claims against current cosmetic regulations.',
+  },
+  {
+    id: 14,
+    name: 'Smart Dosing Dispenser',
+    company: 'Brevalto Devices GmbH',
+    status: 'Awaiting Decision',
+    score: 6.9,
+    tier: 'Tier 2',
+    groups: ['Home Care', 'Digital R&D'],
+    region: 'Europe',
+    date: 'Aug 4, 2026',
+    owner: 'Elena Fischer',
+    summary:
+      'Connected dispenser that doses detergent by load size, with usage data from 400 test homes.',
+    nextStep: 'Decide between a Home Care pilot and a Digital R&D data partnership.',
+  },
+  {
+    id: 15,
+    name: 'Plant-based Fat Structurant',
+    company: 'Quenmar Foods S.A.',
+    status: 'Submitted',
+    score: null,
+    tier: null,
+    groups: ['Foods'],
+    region: 'Latin America',
+    date: 'Aug 12, 2026',
+    owner: 'Unassigned',
+    summary:
+      'Plant-based structurant that could replace palm fat in spreads. Awaiting first-pass disqualifier screening.',
+    nextStep: 'Run hard-filter checks and route to the Foods intake owner.',
+  },
+  {
+    id: 16,
+    name: 'Prescription Acne Therapeutic',
+    company: 'Calvrex Pharma Ltd.',
+    status: 'Disqualified',
+    score: null,
+    tier: null,
+    groups: ['Beauty & Wellbeing'],
+    region: 'Middle East & Africa',
+    date: 'Apr 21, 2026',
+    owner: 'Marcus Cole',
+    summary:
+      'Prescription acne treatment in clinical trials. The core product is a therapeutic, with no consumer product route.',
+    nextStep: 'No action. Scoring skipped.',
+    closure: {
+      closedOn: 'Apr 21, 2026',
+      decidedBy: 'Hard filter check',
+      filter: 'DQ-1 · Pharmaceutical / therapeutic focus',
+      partnerUpdate: 'Polite decline sent the same day. Not added to active tracking.',
+    },
+  },
+  {
+    id: 17,
+    name: 'Algae Protein Isolate',
+    company: 'Tidewell Nutrition Pty Ltd',
+    status: 'Declined',
+    score: 4.2,
+    tier: 'Tier 4',
+    groups: ['Foods'],
+    region: 'Asia Pacific',
+    date: 'May 19, 2026',
+    owner: 'Priya Nandan',
+    summary:
+      'Good taste and nutrition data, but cost per kilo is roughly three times the target and there is no scale-up plan.',
+    nextStep: 'No action. Archived for future reference.',
+    closure: {
+      closedOn: 'Jun 2, 2026',
+      decidedBy: 'Priya Nandan',
+      partnerUpdate: 'Decline sent with rationale. Open to a new submission once costs come down.',
+    },
+  },
+  {
+    id: 18,
+    name: 'Gene-edited Skin Cell Therapy',
+    company: 'Morvane Therapeutics Inc.',
+    status: 'Disqualified',
+    score: null,
+    tier: null,
+    groups: ['Beauty & Wellbeing'],
+    region: 'North America',
+    date: 'Jun 16, 2026',
+    owner: 'Marcus Cole',
+    summary: 'Cell therapy platform for skin repair. The core technology has no consumer product application.',
+    nextStep: 'No action. Scoring skipped.',
+    closure: {
+      closedOn: 'Jun 16, 2026',
+      decidedBy: 'Hard filter check',
+      filter: 'DQ-3 · Oncology / gene / cell therapy core',
+      partnerUpdate: 'Polite decline sent. Not added to active tracking.',
+    },
+  },
+  {
+    id: 19,
+    name: 'Reusable Shipping Tote Network',
+    company: 'Loopstead Ltd.',
+    status: 'Declined',
+    score: 2.6,
+    tier: 'Tier 5',
+    groups: ['Home Care'],
+    region: 'Europe',
+    date: 'Jul 8, 2026',
+    owner: 'Sofia Nakamura',
+    summary:
+      'Reusable tote logistics for online grocers. A logistics service rather than a product or ingredient, so fit is low.',
+    nextStep: 'No action.',
+    closure: {
+      closedOn: 'Jul 15, 2026',
+      decidedBy: 'Sofia Nakamura',
+      partnerUpdate: 'Polite decline sent with a brief rationale.',
+    },
+  },
+  {
+    id: 20,
+    name: 'Aroma Encapsulation Beads',
+    company: 'Sentivo Fragrance Co.',
+    status: 'Declined',
+    score: 5.6,
+    tier: 'Tier 3',
+    groups: ['Home Care', 'Personal Care'],
+    region: 'Asia Pacific',
+    date: 'Jul 29, 2026',
+    owner: 'Owen Baptiste',
+    summary:
+      'Long-lasting fragrance beads with solid lab data. The category owner passed after diligence because it overlaps an in-house technology.',
+    nextStep: 'Keep on the quarterly watch list in case the in-house project stops.',
+    closure: {
+      closedOn: 'Aug 14, 2026',
+      decidedBy: 'Owen Baptiste',
+      partnerUpdate: 'Decline sent after diligence call. Kept on the watch list.',
+    },
   },
 ]
 
@@ -374,10 +574,10 @@ const disqualifiers = [
 ]
 
 const activityItems = [
-  ['Probiotic Nutrition Blend', 'Shortlisted by Priya Nandan', '2h ago'],
-  ['Bio-based Surfactant Platform', 'Moved to Admin Review by Gurnoor Kahlon', '5h ago'],
-  ['Skin Imaging Diagnostic Platform', 'Placed On Hold by Marcus Cole', '1d ago'],
-  ['Connected Cleaning Analytics', 'Handed Off by Elena Fischer', '2d ago'],
+  ['Aroma Encapsulation Beads', 'Declined by Owen Baptiste', '2h ago'],
+  ['Plant-based Fat Structurant', 'Submitted for screening', '5h ago'],
+  ['Smart Dosing Dispenser', 'Moved to Awaiting Decision by Elena Fischer', '1d ago'],
+  ['Upcycled Fibre Coating', 'Shortlisted by Gurnoor Kahlon', '3d ago'],
 ]
 
 function App() {
@@ -391,18 +591,18 @@ function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
 
-  const openSubmissions = submissions.filter((item) => item.status !== 'Closed')
-  const closedSubmissions = submissions.filter((item) => item.status === 'Closed')
+  const openSubmissions = submissions.filter((item) => !isClosed(item)).sort(byNewest)
+  const closedSubmissions = submissions.filter(isClosed).sort(byNewest)
 
-  const filteredSubmissions = useMemo(() => {
+  const matches = (item: Submission) => {
     const normalized = search.trim().toLowerCase()
-    if (!normalized) return openSubmissions
-    return openSubmissions.filter((item) =>
-      [item.name, item.company, item.region, item.status, ...item.groups].some((value) =>
-        value.toLowerCase().includes(normalized),
-      ),
+    if (!normalized) return true
+    return [item.name, item.company, item.region, item.status, ...item.groups].some((value) =>
+      value.toLowerCase().includes(normalized),
     )
-  }, [openSubmissions, search])
+  }
+  const filteredSubmissions = openSubmissions.filter(matches)
+  const filteredClosed = closedSubmissions.filter(matches)
 
   const title = showManual ? 'New manual submission' : {
     submissions: 'Submissions',
@@ -503,7 +703,7 @@ function App() {
         <section className="content-surface">
           {!showManual && activeView === 'submissions' && (
             <SubmissionsView
-              closedSubmissions={closedSubmissions}
+              closedSubmissions={filteredClosed}
               filteredSubmissions={filteredSubmissions}
               search={search}
               setSearch={setSearch}
@@ -551,12 +751,13 @@ function SubmissionsView({
   timeRange,
 }: SubmissionsViewProps) {
   const [popover, setPopover] = useState<'help' | 'sort' | 'filters' | 'calendar' | null>(null)
+  const [showClosed, setShowClosed] = useState(false)
 
   return (
     <div className="view-stack">
       <div className="view-heading split">
         <p>
-          <strong>10</strong> total submissions
+          <strong>{submissions.length}</strong> total submissions
         </p>
         <div className="header-buttons">
           <button
@@ -628,11 +829,29 @@ function SubmissionsView({
         ))}
       </div>
 
-      <button className="closed-row" type="button">
+      <button
+        className={showClosed ? 'closed-row is-open' : 'closed-row'}
+        type="button"
+        aria-expanded={showClosed}
+        onClick={() => setShowClosed((current) => !current)}
+      >
         <span>Closed</span>
         <strong>{closedSubmissions.length}</strong>
+        <small>Declined and disqualified</small>
         <ChevronDown size={16} />
       </button>
+      {showClosed && (
+        <div className="submission-list closed-list">
+          {closedSubmissions.map((submission, index) => (
+            <SubmissionCard
+              key={submission.id}
+              index={index}
+              submission={submission}
+              onSelect={() => setSelectedSubmission(submission)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -695,7 +914,8 @@ function StatusPill({ status }: { status: SubmissionStatus }) {
     Shortlisted: 'green',
     'Handed Off': 'cyan',
     Submitted: 'slate',
-    Closed: 'red',
+    Declined: 'slate',
+    Disqualified: 'red',
   }[status]
   return (
     <span className={`status-pill ${tone}`}>
@@ -1108,7 +1328,7 @@ function LineChart() {
         ))}
         <path d="M38 181 C92 174 103 162 145 145 S229 152 267 178 S331 104 386 116 S440 77 492 88 S555 67 590 69 S639 133 716 154" />
         <path className="green-path" d="M38 206 C90 194 118 181 157 178 S220 190 270 190 S336 160 388 160 S441 184 493 168 S554 139 590 139 S643 184 716 191" />
-        {['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'].map((label, index) => (
+        {['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'].map((label, index) => (
           <text key={label} x={38 + index * 61} y="221">
             {label}
           </text>
@@ -1624,7 +1844,7 @@ function FiltersPopover({ onClose }: { onClose: () => void }) {
         </button>
       </header>
       {[
-        ['Status', ['Submitted', 'AI Scoring', 'Awaiting Decision', 'In Admin Review', 'On Hold', 'Shortlisted', 'Handed Off', 'Declined', 'Closed (DQ)']],
+        ['Status', ['Submitted', 'AI Scoring', 'Awaiting Decision', 'In Admin Review', 'On Hold', 'Shortlisted', 'Handed Off', 'Declined', 'Disqualified']],
         ['Tier', ['Tier 1', 'Tier 2', 'Tier 3', 'Tier 4', 'Tier 5']],
         ['Region', ['Europe', 'North America', 'Asia Pacific', 'Middle East & Africa']],
       ].map(([label, values]) => (
@@ -1766,6 +1986,17 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 
 function SubmissionDrawer({ onClose, submission }: { onClose: () => void; submission: Submission }) {
   const score = submission.score ?? 0
+  const closure = submission.closure
+  const disqualified = submission.status === 'Disqualified'
+  const checks = disqualified
+    ? [
+        { label: `Hard filter triggered: ${closure?.filter?.split(' · ')[0] ?? 'DQ'}`, done: true },
+        { label: 'Scoring skipped', done: true },
+      ]
+    : ['Hard filters checked', 'Category fit reviewed', 'Commercial proof attached'].map((label, index) => ({
+        label,
+        done: !(index === 2 && submission.status === 'Submitted'),
+      }))
   return (
     <div className="overlay drawer-overlay" role="presentation" onMouseDown={onClose}>
       <aside className="drawer" role="dialog" aria-modal="true" aria-labelledby="submission-title" onMouseDown={(event) => event.stopPropagation()}>
@@ -1780,8 +2011,8 @@ function SubmissionDrawer({ onClose, submission }: { onClose: () => void; submis
         </header>
         <div className="score-ring" style={{ '--score': `${score * 10}%` } as React.CSSProperties}>
           <span>
-            {submission.score ? submission.score : '-'}
-            <small>/10</small>
+            {disqualified ? 'DQ' : submission.score ? submission.score : '-'}
+            {!disqualified && <small>/10</small>}
           </span>
         </div>
         <div className="drawer-chips">
@@ -1792,27 +2023,48 @@ function SubmissionDrawer({ onClose, submission }: { onClose: () => void; submis
             {submission.region}
           </span>
         </div>
+        {closure && (
+          <section className={`closure-card ${disqualified ? 'is-dq' : ''}`}>
+            <h3>{disqualified ? 'Disqualified before scoring' : 'Declined after review'}</h3>
+            <dl>
+              <div>
+                <dt>Closed on</dt>
+                <dd>{closure.closedOn}</dd>
+              </div>
+              <div>
+                <dt>Decided by</dt>
+                <dd>{closure.decidedBy}</dd>
+              </div>
+              {closure.filter && (
+                <div className="wide">
+                  <dt>Hard filter</dt>
+                  <dd>{closure.filter}</dd>
+                </div>
+              )}
+            </dl>
+          </section>
+        )}
         <section>
-          <h3>Reviewer summary</h3>
+          <h3>{closure ? 'Why it was closed' : 'Reviewer summary'}</h3>
           <p>{submission.summary}</p>
         </section>
         <section>
-          <h3>Recommended next step</h3>
-          <p>{submission.nextStep}</p>
+          <h3>{closure ? 'Partner update' : 'Recommended next step'}</h3>
+          <p>{closure ? closure.partnerUpdate : submission.nextStep}</p>
         </section>
         <section>
           <h3>Evidence readiness</h3>
           <div className="readiness-list">
-            {['Hard filters checked', 'Category fit reviewed', 'Commercial proof attached'].map((item, index) => (
-              <span key={item}>
-                <CheckCircle2 size={16} className={index === 2 && submission.status === 'Submitted' ? 'muted' : ''} />
-                {item}
+            {checks.map((item) => (
+              <span key={item.label}>
+                <CheckCircle2 size={16} className={item.done ? '' : 'muted'} />
+                {item.label}
               </span>
             ))}
           </div>
         </section>
-        <button className="primary-button full-width" type="button">
-          Open diligence workspace
+        <button className={closure ? 'soft-button full-width' : 'primary-button full-width'} type="button">
+          {closure ? 'Reopen submission' : 'Open diligence workspace'}
         </button>
       </aside>
     </div>

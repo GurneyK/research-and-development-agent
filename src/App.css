@@ -197,6 +197,8 @@ button {
 }
 
 .settings-link {
+  width: auto;
+  align-self: stretch;
   margin: auto 12px 12px;
   color: #9fb2dc;
 }
@@ -262,7 +264,7 @@ button {
 }
 
 .topbar {
-  height: 56px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2928,4 +2930,78 @@ button {
   .modal-card footer {
     flex-direction: column-reverse;
   }
+}
+
+/* Closed submissions: expandable list and decision record */
+.closed-row {
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.closed-row:hover,
+.closed-row.is-open {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.closed-row small {
+  color: var(--muted-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.closed-row svg {
+  transition: transform 160ms ease;
+}
+
+.closed-row.is-open svg {
+  transform: rotate(180deg);
+}
+
+.closed-list .submission-card {
+  opacity: 0.88;
+}
+
+.drawer .closure-card {
+  margin-bottom: 4px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted-2);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.drawer .closure-card.is-dq {
+  border-left-color: var(--red);
+}
+
+.closure-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0 0;
+}
+
+.closure-card dl .wide {
+  grid-column: 1 / -1;
+}
+
+.closure-card dt {
+  color: var(--muted-2);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.closure-card dd {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+[data-theme='light'] .drawer .closure-card {
+  background: #f7f9fd;
 }
